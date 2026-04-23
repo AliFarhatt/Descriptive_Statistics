@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Descriptive Statistics – 11 ADP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F9F8F5;
+    --ink: #1C1C1E;
+    --ink-soft: #4A4A4E;
+    --accent: #4A6B8A;
+    --accent-light: #EBF0F5;
+    --rule: #D9D6CE;
+    --heading: 'Cormorant Garamond', Georgia, serif;
+    --body: 'DM Sans', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: #2A2A2A;
+    overflow: hidden;
+    font-family: var(--body);
+  }
+
+  /* ── Slide Stage ── */
+  #stage {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .slide-wrap {
+    width: min(960px, 95vw);
+    aspect-ratio: 16/10;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute; inset: 0;
+    background: var(--bg);
+    border-radius: 6px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s ease;
+    display: flex; flex-direction: column;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── Slide Header Bar ── */
+  .slide-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 36px;
+    height: 52px;
+    border-bottom: 1.5px solid var(--rule);
+    flex-shrink: 0;
+  }
+  .slide-label {
+    font-family: var(--body);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .slide-num {
+    font-family: var(--body);
+    font-size: 10px;
+    color: #A0A0A0;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── Slide Body ── */
+  .slide-body {
+    flex: 1;
+    padding: 32px 52px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ── Typography ── */
+  .slide-title {
+    font-family: var(--heading);
+    font-size: clamp(26px, 3.6vw, 42px);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  .slide-subtitle {
+    font-family: var(--heading);
+    font-size: clamp(14px, 1.8vw, 20px);
+    font-style: italic;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+  }
+  .rule-line {
+    width: 48px;
+    height: 2px;
+    background: var(--accent);
+    margin-bottom: 22px;
+    border-radius: 2px;
+  }
+  p, .body-text {
+    font-size: clamp(12px, 1.4vw, 15.5px);
+    line-height: 1.65;
+    color: var(--ink-soft);
+    max-width: 780px;
+  }
+  .em { color: var(--accent); font-weight: 500; }
+
+  /* ── Two-column layout ── */
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .cols-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: white;
+    border: 1.5px solid var(--rule);
+    border-radius: 6px;
+    padding: 18px 20px;
+  }
+  .card-title {
+    font-family: var(--heading);
+    font-size: clamp(14px, 1.6vw, 18px);
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .card p {
+    font-size: clamp(11px, 1.2vw, 13.5px);
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ── Tag pills ── */
+  .tag {
+    display: inline-block;
+    background: var(--accent-light);
+    color: var(--accent);
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 2px 9px;
+    margin-left: 8px;
+  }
+  .tag-neutral {
+    background: #F0EFEB;
+    color: #777;
+  }
+
+  /* ── Tables ── */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: clamp(11px, 1.25vw, 14px);
+  }
+  thead th {
+    background: var(--accent);
+    color: white;
+    font-family: var(--body);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 9px 14px;
+    text-align: left;
+  }
+  tbody td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-soft);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) td { background: #FAFAF8; }
+
+  /* ── Step list ── */
+  .steps { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .steps li {
+    display: flex; align-items: flex-start; gap: 14px;
+    font-size: clamp(11.5px, 1.3vw, 14px);
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+
+  /* ── Bullet list ── */
+  .bullets { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .bullets li {
+    display: flex; gap: 12px;
+    font-size: clamp(11.5px, 1.3vw, 14px);
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .bullets li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 7px;
+  }
+
+  /* ── Example box ── */
+  .example-box {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 5px 5px 0;
+    padding: 14px 18px;
+    font-size: clamp(11px, 1.2vw, 13.5px);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .example-label {
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+
+  /* ── Navigation ── */
+  #nav {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(28,28,30,0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 40px;
+    padding: 8px 18px;
+    z-index: 100;
+  }
+  .nav-btn {
+    background: none; border: none; cursor: pointer;
+    color: white; opacity: 0.75;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.2s, background 0.2s;
+    font-size: 15px;
+  }
+  .nav-btn:hover { opacity: 1; background: rgba(255,255,255,0.12); }
+  #counter {
+    font-family: var(--body);
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    min-width: 52px; text-align: center;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Progress bar ── */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+    z-index: 200;
+  }
+
+  /* ── Title slide special ── */
+  .title-slide .slide-body {
+    justify-content: center;
+    align-items: flex-start;
+    padding: 48px 64px;
+  }
+  .title-slide .slide-header { border-bottom-color: transparent; }
+  .mega-title {
+    font-family: var(--heading);
+    font-size: clamp(40px, 6vw, 70px);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  .mega-subtitle {
+    font-family: var(--heading);
+    font-style: italic;
+    font-size: clamp(16px, 2.2vw, 24px);
+    color: var(--ink-soft);
+    margin-bottom: 32px;
+  }
+  .title-badge {
+    background: var(--accent);
+    color: white;
+    font-family: var(--body);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  /* ── SVG histogram & graph ── */
+  svg.chart { width: 100%; height: auto; display: block; }
+
+  /* ── Recap grid ── */
+  .recap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .recap-item {
+    border: 1.5px solid var(--rule);
+    border-radius: 5px;
+    padding: 14px 15px;
+    background: white;
+  }
+  .recap-item .icon {
+    font-size: 18px; margin-bottom: 6px;
+  }
+  .recap-item .r-title {
+    font-family: var(--heading);
+    font-size: 14px; font-weight: 600;
+    color: var(--accent); margin-bottom: 4px;
+  }
+  .recap-item p {
+    font-size: 11.5px; line-height: 1.5;
+  }
+
+  /* ── Data type row ── */
+  .dtype-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 0;
+    font-size: clamp(10.5px, 1.15vw, 13px);
+  }
+  .dtype-row .dh {
+    background: var(--accent); color: white;
+    padding: 8px 12px; font-weight: 500;
+  }
+  .dtype-row .dc {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-soft);
+  }
+  .dtype-row .dc:nth-child(3n+1) { background: #FAFAF8; }
+  .answer { color: var(--accent); font-weight: 500; }
+
+  /* ── Sampling badge ── */
+  .s-badge {
+    background: var(--accent);
+    color: white;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+
+  /* ── Formula display ── */
+  .formula {
+    background: white;
+    border: 1.5px solid var(--rule);
+    border-radius: 5px;
+    padding: 12px 18px;
+    font-size: clamp(12px, 1.35vw, 15px);
+    color: var(--ink);
+    text-align: center;
+    margin: 10px 0;
+  }
+  .formula .frac {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .frac .num { display: block; border-bottom: 1.5px solid var(--ink); padding: 0 4px 2px; }
+  .frac .den { display: block; padding: 2px 4px 0; }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="stage">
+<div class="slide-wrap" id="deck">
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 1: TITLE -->
+<div class="slide title-slide active" data-label="Introduction">
+  <div class="slide-header">
+    <span class="slide-label">11 ADP – Study Guide</span>
+    <span class="slide-num">1 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="rule-line"></div>
+    <div class="mega-title">Descriptive<br>Statistics</div>
+    <div class="mega-subtitle">Organising, displaying, and interpreting data</div>
+    <div class="title-badge">11 ADP &nbsp;·&nbsp; Full Study Guide Review</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 2: DATA TYPES OVERVIEW -->
+<div class="slide" data-label="Data Types">
+  <div class="slide-header">
+    <span class="slide-label">Types of Data</span>
+    <span class="slide-num">2 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">What kind of data are we dealing with?</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <div class="card">
+          <div class="card-title">Qualitative Data</div>
+          <p>Describes <strong>categories or labels</strong> — data that cannot be measured with numbers in a meaningful way.</p>
+          <br>
+          <p style="font-style:italic;font-size:12px;">Examples: colours, names, job titles, majors</p>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">Quantitative Data</div>
+          <p>Represents <strong>numerical values</strong> — data that can be counted or measured.</p>
+          <br>
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <div style="flex:1;background:var(--accent-light);border-radius:4px;padding:10px 12px;">
+              <div style="font-size:11px;font-weight:500;color:var(--accent);margin-bottom:4px;">DISCRETE</div>
+              <p style="font-size:11.5px;">Counted values — whole numbers only.<br><em>E.g. number of seats</em></p>
+            </div>
+            <div style="flex:1;background:#F4F0EB;border-radius:4px;padding:10px 12px;">
+              <div style="font-size:11px;font-weight:500;color:#7A6A55;margin-bottom:4px;">CONTINUOUS</div>
+              <p style="font-size:11.5px;">Measured values — any value in a range.<br><em>E.g. age, liquid volume</em></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 3: IDENTIFYING DATA TYPES -->
+<div class="slide" data-label="Data Types">
+  <div class="slide-header">
+    <span class="slide-label">Identifying Data Types</span>
+    <span class="slide-num">3 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Practice: classify each example</div>
+    <div class="rule-line"></div>
+    <div class="dtype-row">
+      <div class="dh">Data</div><div class="dh" style="text-align:center;">Type</div><div class="dh" style="text-align:center;">Sub-type</div>
+
+      <div class="dc">Colours of automobiles on a used car lot</div>
+      <div class="dc" style="text-align:center;"><span class="answer">Qualitative</span></div>
+      <div class="dc" style="text-align:center;">—</div>
+
+      <div class="dc">Numbers on the shirts of a girls' soccer team</div>
+      <div class="dc" style="text-align:center;"><span class="answer">Qualitative</span></div>
+      <div class="dc" style="text-align:center;font-size:11px;color:#999;">labels, not amounts</div>
+
+      <div class="dc">Number of seats in a movie theater</div>
+      <div class="dc" style="text-align:center;"><span class="answer">Quantitative</span></div>
+      <div class="dc" style="text-align:center;"><span class="answer">Discrete</span></div>
+
+      <div class="dc">Majors of students in a university</div>
+      <div class="dc" style="text-align:center;"><span class="answer">Qualitative</span></div>
+      <div class="dc" style="text-align:center;">—</div>
+
+      <div class="dc">Ages of 350 hospital employees</div>
+      <div class="dc" style="text-align:center;"><span class="answer">Quantitative</span></div>
+      <div class="dc" style="text-align:center;"><span class="answer">Continuous</span></div>
+
+      <div class="dc">Amount of liquid in science lab bottles</div>
+      <div class="dc" style="text-align:center;"><span class="answer">Quantitative</span></div>
+      <div class="dc" style="text-align:center;"><span class="answer">Continuous</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 4: SAMPLING OVERVIEW -->
+<div class="slide" data-label="Sampling">
+  <div class="slide-header">
+    <span class="slide-label">Sampling Methods</span>
+    <span class="slide-num">4 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Four sampling techniques</div>
+    <div class="rule-line"></div>
+    <p style="margin-bottom:18px;">When we cannot study an entire population, we select a <span class="em">sample</span>. The method we use affects how representative the sample is.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="card" style="border-top:3px solid var(--accent);">
+        <div class="card-title">Simple Random</div>
+        <p>Every member of the population has an <strong>equal chance</strong> of being selected.</p>
+      </div>
+      <div class="card" style="border-top:3px solid #7A9BB5;">
+        <div class="card-title">Stratified</div>
+        <p>Population is divided into <strong>groups (strata)</strong>; members are selected proportionally from each.</p>
+      </div>
+      <div class="card" style="border-top:3px solid #9EB5A0;">
+        <div class="card-title">Systematic</div>
+        <p>Select every <strong>k<sup>th</sup> person</strong> from an ordered list or sequence.</p>
+      </div>
+      <div class="card" style="border-top:3px solid #B5A99E;">
+        <div class="card-title">Convenience</div>
+        <p>Select whoever is <strong>easiest to reach</strong>. Quick but can be biased.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 5: SIMPLE RANDOM -->
+<div class="slide" data-label="Sampling">
+  <div class="slide-header">
+    <span class="slide-label">Sampling Methods</span>
+    <span class="slide-num">5 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="s-badge">Simple Random Sampling</div>
+    <div class="slide-title">Every member has an equal chance</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <ul class="steps">
+          <li><div class="step-num">1</div><span>Number every member of the population.</span></li>
+          <li><div class="step-num">2</div><span>Use a random method (dice, random number table, computer) to select individuals.</span></li>
+          <li><div class="step-num">3</div><span>Each person has the same probability of being chosen.</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="example-box">
+          <div class="example-label">Key idea</div>
+          No group is favoured. The sample reflects the population without deliberate structure.
+          <br><br>
+          <strong>Strength:</strong> Unbiased<br>
+          <strong>Limitation:</strong> Requires a full list of the population
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 6: SYSTEMATIC -->
+<div class="slide" data-label="Sampling">
+  <div class="slide-header">
+    <span class="slide-label">Sampling Methods</span>
+    <span class="slide-num">6 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="s-badge" style="background:#7A9BB5;">Systematic Sampling</div>
+    <div class="slide-title">Select every k<sup>th</sup> person</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <ul class="steps">
+          <li><div class="step-num">1</div><span>Order the population in a list.</span></li>
+          <li><div class="step-num">2</div><span>Choose a starting point at random.</span></li>
+          <li><div class="step-num">3</div><span>Select every <em>k</em><sup>th</sup> member after that point.</span></li>
+        </ul>
+        <br>
+        <div class="formula" style="text-align:left;font-size:13px;">
+          k = Population size ÷ Sample size
+        </div>
+      </div>
+      <div>
+        <div class="example-box">
+          <div class="example-label">Study guide example</div>
+          <strong>"Every fifth person boarding a plane is searched thoroughly."</strong>
+          <br><br>
+          Here k = 5. The pattern repeats regularly through the queue.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 7: STRATIFIED -->
+<div class="slide" data-label="Sampling">
+  <div class="slide-header">
+    <span class="slide-label">Sampling Methods</span>
+    <span class="slide-num">7 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="s-badge" style="background:#5A8A6A;">Stratified Sampling</div>
+    <div class="slide-title">Sample proportionally from each group</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <ul class="steps">
+          <li><div class="step-num">1</div><span>Divide the population into distinct <strong>strata</strong> (groups).</span></li>
+          <li><div class="step-num">2</div><span>Calculate each stratum's proportion of the total.</span></li>
+          <li><div class="step-num">3</div><span>Multiply that proportion by the desired sample size.</span></li>
+          <li><div class="step-num">4</div><span>Randomly select that many people from each stratum.</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="example-box">
+          <div class="example-label">Study guide example</div>
+          <strong>"A researcher randomly selects 50 male and 50 female teachers."</strong>
+          <br><br>
+          Gender is the stratum. Equal numbers are drawn from each group → <span class="em">Stratified sampling</span>.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 8: CONVENIENCE -->
+<div class="slide" data-label="Sampling">
+  <div class="slide-header">
+    <span class="slide-label">Sampling Methods</span>
+    <span class="slide-num">8 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="s-badge" style="background:#8A7A6A;">Convenience Sampling</div>
+    <div class="slide-title">Use whoever is easiest to reach</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <p>The researcher selects participants simply because they are <strong>available and accessible</strong> — not by a random or structured method.</p>
+        <br>
+        <div class="example-box">
+          <div class="example-label">Study guide example</div>
+          <strong>"A college student interviews everyone in his biology class."</strong>
+          <br><br>
+          The class is used because it is the most convenient group to survey.
+        </div>
+      </div>
+      <div>
+        <div class="card" style="border-left:3px solid #C4A882;">
+          <div class="card-title" style="color:#8A7A6A;">When is it a problem?</div>
+          <p>The sample may not reflect the wider population. The biology class might share traits (e.g. same major) that distort results.</p>
+        </div>
+        <br>
+        <div class="card" style="border-left:3px solid #C4A882;">
+          <div class="card-title" style="color:#8A7A6A;">Key identifier</div>
+          <p>No randomisation. Whoever is <em>on hand</em> is used.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 9: IDENTIFYING TECHNIQUE -->
+<div class="slide" data-label="Sampling">
+  <div class="slide-header">
+    <span class="slide-label">Identifying Sampling Technique</span>
+    <span class="slide-num">9 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Which method is being used?</div>
+    <div class="rule-line"></div>
+    <div style="display:flex;flex-direction:column;gap:11px;">
+      <div style="display:grid;grid-template-columns:3fr 2fr;gap:0;border:1.5px solid var(--rule);border-radius:5px;overflow:hidden;">
+        <div style="padding:10px 16px;font-size:13px;color:var(--ink-soft);">Every 5th person boarding a plane is searched.</div>
+        <div style="padding:10px 16px;font-size:12.5px;color:var(--accent);font-weight:500;background:var(--accent-light);display:flex;align-items:center;">Systematic</div>
+      </div>
+      <div style="display:grid;grid-template-columns:3fr 2fr;gap:0;border:1.5px solid var(--rule);border-radius:5px;overflow:hidden;">
+        <div style="padding:10px 16px;font-size:13px;color:var(--ink-soft);">A researcher randomly selects 50 male and 50 female teachers.</div>
+        <div style="padding:10px 16px;font-size:12.5px;color:var(--accent);font-weight:500;background:var(--accent-light);display:flex;align-items:center;">Stratified</div>
+      </div>
+      <div style="display:grid;grid-template-columns:3fr 2fr;gap:0;border:1.5px solid var(--rule);border-radius:5px;overflow:hidden;">
+        <div style="padding:10px 16px;font-size:13px;color:var(--ink-soft);">A university uses 12,500 responses from 42,000 surveys sent to alumni.</div>
+        <div style="padding:10px 16px;font-size:12.5px;color:var(--accent);font-weight:500;background:var(--accent-light);display:flex;align-items:center;">Simple Random<span style="font-size:10px;font-weight:400;color:#888;margin-left:6px;">(volunteers)</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:3fr 2fr;gap:0;border:1.5px solid var(--rule);border-radius:5px;overflow:hidden;">
+        <div style="padding:10px 16px;font-size:13px;color:var(--ink-soft);">A student interviews everyone in his/her biology class.</div>
+        <div style="padding:10px 16px;font-size:12.5px;color:var(--accent);font-weight:500;background:var(--accent-light);display:flex;align-items:center;">Convenience</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 10: STRATIFIED WORKED EXAMPLE -->
+<div class="slide" data-label="Stratified Sampling">
+  <div class="slide-header">
+    <span class="slide-label">Stratified Sampling – Worked Example</span>
+    <span class="slide-num">10 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Convention visitors — sample of 80</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <table>
+          <thead><tr><th>Age Group</th><th>Population</th><th>Proportion</th><th>Sample</th></tr></thead>
+          <tbody>
+            <tr><td>5 – 15</td><td>132</td><td>132/1642</td><td style="color:var(--accent);font-weight:500;">≈ 6</td></tr>
+            <tr><td>16 – 25</td><td>678</td><td>678/1642</td><td style="color:var(--accent);font-weight:500;">≈ 33</td></tr>
+            <tr><td>26 – 40</td><td>543</td><td>543/1642</td><td style="color:var(--accent);font-weight:500;">≈ 26</td></tr>
+            <tr><td>41 – 60</td><td>289</td><td>289/1642</td><td style="color:var(--accent);font-weight:500;">≈ 14</td></tr>
+            <tr style="font-weight:500;"><td><strong>Total</strong></td><td><strong>1642</strong></td><td></td><td style="color:var(--accent);font-weight:600;"><strong>≈ 79</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="example-box">
+          <div class="example-label">Formula for each group</div>
+          <div class="formula" style="background:white;">
+            Sample from group = 
+            <span class="frac"><span class="num">Group size</span><span class="den">Total population</span></span>
+            × 80
+          </div>
+          <br>
+          <strong>Example – Age 16–25:</strong><br>
+          678 ÷ 1642 × 80 ≈ <span class="em">33 people</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 11: FREQUENCY TABLES -->
+<div class="slide" data-label="Frequency Tables">
+  <div class="slide-header">
+    <span class="slide-label">Frequency Tables</span>
+    <span class="slide-num">11 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Organising raw data</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <p>A <span class="em">frequency table</span> lists each value (or category) alongside the number of times it appears in the data set.</p>
+        <br>
+        <ul class="bullets">
+          <li>Makes patterns easy to spot at a glance</li>
+          <li>Reduces large data sets to a compact summary</li>
+          <li>Foundation for histograms and graphs</li>
+        </ul>
+        <br>
+        <div class="example-box">
+          <div class="example-label">Reading a frequency table</div>
+          <strong>Frequency</strong> = count of how often a value appears<br>
+          <strong>Total frequency</strong> = number of data points overall
+        </div>
+      </div>
+      <div>
+        <p style="font-size:11.5px;margin-bottom:10px;color:#999;letter-spacing:0.05em;">PARTICIPATION GRADES (Preview)</p>
+        <table>
+          <thead><tr><th>Grade</th><th>Frequency</th></tr></thead>
+          <tbody>
+            <tr><td>1 (worst)</td><td>7</td></tr>
+            <tr><td>2</td><td>8</td></tr>
+            <tr><td>3</td><td>9</td></tr>
+            <tr><td>4 (best)</td><td>6</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>30</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 12: GROUPED FREQUENCY -->
+<div class="slide" data-label="Grouped Frequency">
+  <div class="slide-header">
+    <span class="slide-label">Grouped Frequency Tables</span>
+    <span class="slide-num">12 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Grouping continuous data into class intervals</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <p>When data covers a wide range, individual values are grouped into <span class="em">class intervals</span>.</p>
+        <br>
+        <ul class="bullets">
+          <li>Each interval covers an equal width</li>
+          <li>Intervals do not overlap</li>
+          <li>All data must fit into one interval</li>
+        </ul>
+        <br>
+        <div class="example-box" style="font-size:12px;">
+          <div class="example-label">Study guide data</div>
+          30 student weights (kg) grouped into 10-unit intervals
+        </div>
+      </div>
+      <div>
+        <p style="font-size:11.5px;margin-bottom:10px;color:#999;">WEIGHTS OF 30 YEAR-10 STUDENTS</p>
+        <table>
+          <thead><tr><th>Weight (kg)</th><th>Frequency</th></tr></thead>
+          <tbody>
+            <tr><td>40 – 49</td><td>6</td></tr>
+            <tr><td>50 – 59</td><td>13</td></tr>
+            <tr><td>60 – 69</td><td>9</td></tr>
+            <tr><td>70 – 79</td><td>2</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>30</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 13: MODAL CLASS -->
+<div class="slide" data-label="Grouped Frequency">
+  <div class="slide-header">
+    <span class="slide-label">Interpreting Grouped Frequency Tables</span>
+    <span class="slide-num">13 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Finding the modal class</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <p>The <span class="em">modal class</span> is simply the class interval with the <strong>highest frequency</strong> — the most common group of values.</p>
+        <br>
+        <ul class="steps">
+          <li><div class="step-num">1</div><span>Look at the Frequency column.</span></li>
+          <li><div class="step-num">2</div><span>Find the largest number.</span></li>
+          <li><div class="step-num">3</div><span>Read the class interval next to it.</span></li>
+        </ul>
+        <br>
+        <div class="example-box">
+          <div class="example-label">Answer</div>
+          Frequency 13 is the highest → <span class="em">Modal class = 50 – 59 kg</span>
+        </div>
+      </div>
+      <div>
+        <table>
+          <thead><tr><th>Weight (kg)</th><th>Frequency</th></tr></thead>
+          <tbody>
+            <tr><td>40 – 49</td><td>6</td></tr>
+            <tr style="background:#EBF0F5;"><td><strong>50 – 59</strong></td><td><strong style="color:var(--accent);">13 ← modal class</strong></td></tr>
+            <tr><td>60 – 69</td><td>9</td></tr>
+            <tr><td>70 – 79</td><td>2</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 14: HISTOGRAM -->
+<div class="slide" data-label="Histograms">
+  <div class="slide-header">
+    <span class="slide-label">Histograms</span>
+    <span class="slide-num">14 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Representing grouped data visually</div>
+    <div class="rule-line"></div>
+    <div class="cols" style="align-items:center;">
+      <div>
+        <ul class="bullets">
+          <li>Each bar represents one <strong>class interval</strong></li>
+          <li>Bar <strong>height</strong> = frequency of that interval</li>
+          <li>Bars are <strong>adjacent</strong> — no gaps (data is continuous)</li>
+          <li>The x-axis shows the measurement, y-axis shows frequency</li>
+        </ul>
+        <br>
+        <div class="example-box" style="font-size:12px;">
+          <div class="example-label">Key distinction from bar charts</div>
+          In a histogram, the <em>area</em> of each bar is proportional to frequency. Bars touch because there are no gaps in continuous data.
+        </div>
+      </div>
+      <div>
+        <!-- SVG Histogram -->
+        <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" class="chart">
+          <!-- Axes -->
+          <line x1="45" y1="10" x2="45" y2="160" stroke="#ccc" stroke-width="1.2"/>
+          <line x1="45" y1="160" x2="310" y2="160" stroke="#ccc" stroke-width="1.2"/>
+          <!-- Y gridlines -->
+          <line x1="42" y1="44" x2="310" y2="44" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="88" x2="310" y2="88" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="132" x2="310" y2="132" stroke="#eee" stroke-width="1"/>
+          <!-- Y labels -->
+          <text x="38" y="163" text-anchor="end" font-size="9" fill="#999">0</text>
+          <text x="38" y="133" text-anchor="end" font-size="9" fill="#999">5</text>
+          <text x="38" y="89" text-anchor="end" font-size="9" fill="#999">10</text>
+          <text x="38" y="45" text-anchor="end" font-size="9" fill="#999">15</text>
+          <!-- Bars: each 10-unit wide interval = 62px per bar -->
+          <!-- 40-49: f=6, height = 6*8.8 = 52.8 -->
+          <rect x="46" y="107" width="62" height="53" fill="#4A6B8A" opacity="0.7"/>
+          <!-- 50-59: f=13, height=114.4 → cap at 114 -->
+          <rect x="108" y="46" width="62" height="114" fill="#4A6B8A"/>
+          <!-- 60-69: f=9, height=79.2 -->
+          <rect x="170" y="81" width="62" height="79" fill="#4A6B8A" opacity="0.85"/>
+          <!-- 70-79: f=2, height=17.6 -->
+          <rect x="232" y="142" width="62" height="18" fill="#4A6B8A" opacity="0.55"/>
+          <!-- X labels -->
+          <text x="77" y="172" text-anchor="middle" font-size="9" fill="#888">40–49</text>
+          <text x="139" y="172" text-anchor="middle" font-size="9" fill="#888">50–59</text>
+          <text x="201" y="172" text-anchor="middle" font-size="9" fill="#888">60–69</text>
+          <text x="263" y="172" text-anchor="middle" font-size="9" fill="#888">70–79</text>
+          <!-- Freq labels on bars -->
+          <text x="77" y="103" text-anchor="middle" font-size="9" fill="white" font-weight="600">6</text>
+          <text x="139" y="42" text-anchor="middle" font-size="9" fill="white" font-weight="600">13</text>
+          <text x="201" y="77" text-anchor="middle" font-size="9" fill="white" font-weight="600">9</text>
+          <text x="263" y="138" text-anchor="middle" font-size="9" fill="white" font-weight="600">2</text>
+          <!-- Axis labels -->
+          <text x="180" y="192" text-anchor="middle" font-size="10" fill="#666">Weight (kg)</text>
+          <text x="12" y="90" text-anchor="middle" font-size="10" fill="#666" transform="rotate(-90,12,90)">Frequency</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 15: DISCRETE FREQ TABLE -->
+<div class="slide" data-label="Frequency Tables">
+  <div class="slide-header">
+    <span class="slide-label">Discrete Frequency Tables</span>
+    <span class="slide-num">15 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Summarising small whole-number categories</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <p>When data only takes a <strong>small number of whole-number values</strong>, we use a discrete frequency table — one row per value.</p>
+        <br>
+        <div class="example-box">
+          <div class="example-label">Study guide scenario</div>
+          A teacher recorded a <strong>participation grade out of 4</strong> for 30 students.<br><br>
+          Raw data:<br>
+          <span style="font-family:monospace;font-size:12px;line-height:2;">1 1 1 2 3 4 4 3 3 3<br>2 2 2 4 4 4 1 1 1 2<br>2 2 3 3 3 3 3 4 4 4</span>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:11.5px;margin-bottom:10px;color:#999;">PARTICIPATION GRADES – FREQUENCY TABLE</p>
+        <table>
+          <thead><tr><th>Grade</th><th>Tally</th><th>Frequency</th></tr></thead>
+          <tbody>
+            <tr><td>1 (worst)</td><td>|||| ||</td><td>7</td></tr>
+            <tr><td>2</td><td>|||| |||</td><td>8</td></tr>
+            <tr><td>3</td><td>|||| ||||</td><td>9</td></tr>
+            <tr><td>4 (best)</td><td>|||| |</td><td>6</td></tr>
+            <tr><td><strong>Total</strong></td><td></td><td><strong>30</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 16: INTERPRETING FREQ TABLE -->
+<div class="slide" data-label="Frequency Tables">
+  <div class="slide-header">
+    <span class="slide-label">Interpreting Frequency Tables</span>
+    <span class="slide-num">16 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Do the students participate well?</div>
+    <div class="rule-line"></div>
+    <div class="cols" style="align-items:center;">
+      <div>
+        <p>Look at where the frequencies are concentrated:</p>
+        <br>
+        <!-- Mini bar chart -->
+        <svg viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg">
+          <line x1="30" y1="10" x2="30" y2="105" stroke="#ccc" stroke-width="1"/>
+          <line x1="30" y1="105" x2="220" y2="105" stroke="#ccc" stroke-width="1"/>
+          <!-- bars: max=9, scale = 85/9 ~= 9.4 per unit -->
+          <rect x="40" y="39" width="32" height="66" fill="#C8D8E8" rx="2"/>
+          <rect x="84" y="29" width="32" height="76" fill="#9ABACE" rx="2"/>
+          <rect x="128" y="20" width="32" height="85" fill="#4A6B8A" rx="2"/>
+          <rect x="172" y="49" width="32" height="56" fill="#7A9BB5" rx="2"/>
+          <text x="56" y="36" text-anchor="middle" font-size="9" fill="#666">7</text>
+          <text x="100" y="26" text-anchor="middle" font-size="9" fill="#666">8</text>
+          <text x="144" y="17" text-anchor="middle" font-size="9" fill="var(--accent)" font-weight="700">9</text>
+          <text x="188" y="46" text-anchor="middle" font-size="9" fill="#666">6</text>
+          <text x="56" y="118" text-anchor="middle" font-size="9" fill="#888">Grade 1</text>
+          <text x="100" y="118" text-anchor="middle" font-size="9" fill="#888">Grade 2</text>
+          <text x="144" y="118" text-anchor="middle" font-size="9" fill="var(--accent)" font-weight="600">Grade 3</text>
+          <text x="188" y="118" text-anchor="middle" font-size="9" fill="#888">Grade 4</text>
+        </svg>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">Reading the data</div>
+          <p>Grades 3 and 4 together: 9 + 6 = <strong>15 students</strong> (50%)<br>
+          Grades 1 and 2 together: 7 + 8 = <strong>15 students</strong> (50%)</p>
+        </div>
+        <br>
+        <div class="example-box">
+          <div class="example-label">Conclusion</div>
+          The class is <strong>split evenly</strong> between weaker and stronger participation. Grade 3 is the most common, suggesting <em>moderate</em> overall participation — not strongly good, not strongly poor.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 17: CUMULATIVE FREQUENCY INTRO -->
+<div class="slide" data-label="Cumulative Frequency">
+  <div class="slide-header">
+    <span class="slide-label">Cumulative Frequency</span>
+    <span class="slide-num">17 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Building a running total</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <p>The <span class="em">cumulative frequency</span> at any point is the <strong>total number of data values up to and including</strong> that class interval.</p>
+        <br>
+        <ul class="bullets">
+          <li>Each row adds its frequency to the previous cumulative total</li>
+          <li>The final cumulative frequency = total number of data points</li>
+          <li>Used to draw a cumulative frequency graph</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:11.5px;margin-bottom:10px;color:#999;">PIES SOLD – KENNY'S PIE SHOP (300 DAYS)</p>
+        <table>
+          <thead><tr><th>Pies sold</th><th>Freq</th><th>Cum. Freq</th></tr></thead>
+          <tbody>
+            <tr><td>80 ≤ x &lt; 120</td><td>36</td><td style="color:var(--accent);font-weight:500;">36</td></tr>
+            <tr><td>120 ≤ x &lt; 160</td><td>54</td><td style="color:var(--accent);font-weight:500;">90</td></tr>
+            <tr><td>160 ≤ x &lt; 200</td><td>84</td><td style="color:var(--accent);font-weight:500;">174</td></tr>
+            <tr><td>200 ≤ x &lt; 240</td><td>60</td><td style="color:var(--accent);font-weight:500;">234</td></tr>
+            <tr><td>240 ≤ x &lt; 280</td><td>48</td><td style="color:var(--accent);font-weight:500;">282</td></tr>
+            <tr><td>280 ≤ x &lt; 320</td><td>18</td><td style="color:var(--accent);font-weight:500;">300</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 18: CUM FREQ GRAPH -->
+<div class="slide" data-label="Cumulative Frequency">
+  <div class="slide-header">
+    <span class="slide-label">Cumulative Frequency Graph</span>
+    <span class="slide-num">18 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Plotting and connecting the points</div>
+    <div class="rule-line"></div>
+    <div class="cols" style="align-items:center;">
+      <div>
+        <ul class="steps" style="gap:8px;">
+          <li><div class="step-num">1</div><span>Plot each point at the <strong>upper boundary</strong> of each interval.</span></li>
+          <li><div class="step-num">2</div><span>Start at (80, 0) — the lower boundary of the first interval.</span></li>
+          <li><div class="step-num">3</div><span>Connect points with a <strong>smooth curve</strong> (or straight lines).</span></li>
+          <li><div class="step-num">4</div><span>The curve rises steeply where frequency is high.</span></li>
+        </ul>
+        <br>
+        <div class="example-box" style="font-size:12px;">
+          Points: (80,0) → (120,36) → (160,90) → (200,174) → (240,234) → (280,282) → (320,300)
+        </div>
+      </div>
+      <div>
+        <svg id="cumFreqSvg" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" class="chart">
+          <!-- grid -->
+          <line x1="45" y1="10" x2="45" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="45" y1="170" x2="290" y2="170" stroke="#ddd" stroke-width="1"/>
+          <!-- y gridlines & labels -->
+          <line x1="42" y1="117" x2="290" y2="117" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="64" x2="290" y2="64" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="10" x2="290" y2="10" stroke="#eee" stroke-width="1"/>
+          <text x="39" y="173" text-anchor="end" font-size="8" fill="#999">0</text>
+          <text x="39" y="120" text-anchor="end" font-size="8" fill="#999">100</text>
+          <text x="39" y="67" text-anchor="end" font-size="8" fill="#999">200</text>
+          <text x="39" y="14" text-anchor="end" font-size="8" fill="#999">300</text>
+          <!-- x labels: 80,120,160,200,240,280,320 → spread 45 to 285, 40px each -->
+          <text x="45" y="182" text-anchor="middle" font-size="7.5" fill="#999">80</text>
+          <text x="85" y="182" text-anchor="middle" font-size="7.5" fill="#999">120</text>
+          <text x="125" y="182" text-anchor="middle" font-size="7.5" fill="#999">160</text>
+          <text x="165" y="182" text-anchor="middle" font-size="7.5" fill="#999">200</text>
+          <text x="205" y="182" text-anchor="middle" font-size="7.5" fill="#999">240</text>
+          <text x="245" y="182" text-anchor="middle" font-size="7.5" fill="#999">280</text>
+          <text x="285" y="182" text-anchor="middle" font-size="7.5" fill="#999">320</text>
+          <!-- Curve: scale y: 0→170,300→10, so y = 170 - (cf/300)*160 -->
+          <!-- (80,0)→(45,170); (120,36)→(85,150.8); (160,90)→(125,122); (200,174)→(165,77.5); (240,234)→(205,45.1); (280,282)→(245,19.4); (320,300)→(285,10) -->
+          <polyline points="45,170 85,151 125,122 165,77 205,45 245,19 285,10"
+            fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+          <!-- dots -->
+          <circle cx="45" cy="170" r="3" fill="var(--accent)"/>
+          <circle cx="85" cy="151" r="3" fill="var(--accent)"/>
+          <circle cx="125" cy="122" r="3" fill="var(--accent)"/>
+          <circle cx="165" cy="77" r="3" fill="var(--accent)"/>
+          <circle cx="205" cy="45" r="3" fill="var(--accent)"/>
+          <circle cx="245" cy="19" r="3" fill="var(--accent)"/>
+          <circle cx="285" cy="10" r="3" fill="var(--accent)"/>
+          <!-- axis labels -->
+          <text x="170" y="196" text-anchor="middle" font-size="9" fill="#666">Pies sold</text>
+          <text x="10" y="90" text-anchor="middle" font-size="9" fill="#666" transform="rotate(-90,10,90)">Cum. Freq.</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 19: MEDIAN FROM GRAPH -->
+<div class="slide" data-label="Median">
+  <div class="slide-header">
+    <span class="slide-label">Estimating the Median</span>
+    <span class="slide-num">19 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Reading the median from the graph</div>
+    <div class="rule-line"></div>
+    <div class="cols" style="align-items:center;">
+      <div>
+        <p>The <span class="em">median</span> is the middle value. In a data set of 300, it sits at the <strong>150th value</strong>.</p>
+        <br>
+        <ul class="steps">
+          <li><div class="step-num">1</div><span>Find <strong>n/2</strong> on the cumulative frequency axis: 300 ÷ 2 = <strong>150</strong></span></li>
+          <li><div class="step-num">2</div><span>Draw a horizontal line across at 150.</span></li>
+          <li><div class="step-num">3</div><span>Drop a vertical line down to the x-axis.</span></li>
+          <li><div class="step-num">4</div><span>Read off the value → <span class="em">≈ 192 pies</span></span></li>
+        </ul>
+      </div>
+      <div>
+        <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" class="chart">
+          <line x1="45" y1="10" x2="45" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="45" y1="170" x2="290" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="42" y1="117" x2="290" y2="117" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="64" x2="290" y2="64" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="10" x2="290" y2="10" stroke="#eee" stroke-width="1"/>
+          <text x="39" y="173" text-anchor="end" font-size="8" fill="#999">0</text>
+          <text x="39" y="120" text-anchor="end" font-size="8" fill="#999">100</text>
+          <text x="39" y="67" text-anchor="end" font-size="8" fill="#999">200</text>
+          <text x="39" y="14" text-anchor="end" font-size="8" fill="#999">300</text>
+          <text x="45" y="182" text-anchor="middle" font-size="7.5" fill="#999">80</text>
+          <text x="85" y="182" text-anchor="middle" font-size="7.5" fill="#999">120</text>
+          <text x="125" y="182" text-anchor="middle" font-size="7.5" fill="#999">160</text>
+          <text x="165" y="182" text-anchor="middle" font-size="7.5" fill="#999">200</text>
+          <text x="205" y="182" text-anchor="middle" font-size="7.5" fill="#999">240</text>
+          <text x="245" y="182" text-anchor="middle" font-size="7.5" fill="#999">280</text>
+          <text x="285" y="182" text-anchor="middle" font-size="7.5" fill="#999">320</text>
+          <polyline points="45,170 85,151 125,122 165,77 205,45 245,19 285,10"
+            fill="none" stroke="#B8CCD8" stroke-width="1.8" stroke-linejoin="round"/>
+          <!-- Median line: cf=150 → y = 170-(150/300)*160 = 170-80 = 90 -->
+          <!-- x intercept: between (165,77) and (125,122). At y=90: x~155 → pies ~190 -->
+          <line x1="45" y1="90" x2="157" y2="90" stroke="#E07A5F" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <line x1="157" y1="90" x2="157" y2="170" stroke="#E07A5F" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="38" y="93" text-anchor="end" font-size="8" fill="#E07A5F" font-weight="600">150</text>
+          <text x="157" y="178" text-anchor="middle" font-size="8" fill="#E07A5F" font-weight="600">≈192</text>
+          <circle cx="157" cy="90" r="3.5" fill="#E07A5F"/>
+          <polyline points="45,170 85,151 125,122 165,77 205,45 245,19 285,10"
+            fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" opacity="0.6"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 20: PERCENTAGE ABOVE/BELOW -->
+<div class="slide" data-label="Cumulative Frequency">
+  <div class="slide-header">
+    <span class="slide-label">Estimating Percentages</span>
+    <span class="slide-num">20 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">What percentage of days did Kenny break even?</div>
+    <div class="slide-subtitle">Break-even point: 176 pies</div>
+    <div class="rule-line"></div>
+    <div class="cols" style="align-items:center;">
+      <div>
+        <ul class="steps">
+          <li><div class="step-num">1</div><span>Locate <strong>176</strong> on the x-axis (pies sold).</span></li>
+          <li><div class="step-num">2</div><span>Draw a vertical line up to the curve.</span></li>
+          <li><div class="step-num">3</div><span>Read the cumulative frequency: <strong>≈ 130</strong></span></li>
+          <li><div class="step-num">4</div><span>Days <em>below</em> 176: 130 days did NOT break even.</span></li>
+          <li><div class="step-num">5</div><span>Days breaking even: 300 − 130 = <strong>170 days</strong></span></li>
+          <li><div class="step-num" style="background:#5A8A6A;">%</div><span>Percentage: 170 ÷ 300 × 100 ≈ <span class="em">56.7%</span></span></li>
+        </ul>
+      </div>
+      <div>
+        <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" class="chart">
+          <line x1="45" y1="10" x2="45" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="45" y1="170" x2="290" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="42" y1="117" x2="290" y2="117" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="64" x2="290" y2="64" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="10" x2="290" y2="10" stroke="#eee" stroke-width="1"/>
+          <text x="39" y="173" text-anchor="end" font-size="8" fill="#999">0</text>
+          <text x="39" y="120" text-anchor="end" font-size="8" fill="#999">100</text>
+          <text x="39" y="67" text-anchor="end" font-size="8" fill="#999">200</text>
+          <text x="39" y="14" text-anchor="end" font-size="8" fill="#999">300</text>
+          <text x="45" y="182" text-anchor="middle" font-size="7.5" fill="#999">80</text>
+          <text x="125" y="182" text-anchor="middle" font-size="7.5" fill="#999">160</text>
+          <text x="165" y="182" text-anchor="middle" font-size="7.5" fill="#999">200</text>
+          <text x="245" y="182" text-anchor="middle" font-size="7.5" fill="#999">280</text>
+          <polyline points="45,170 85,151 125,122 165,77 205,45 245,19 285,10"
+            fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" opacity="0.7"/>
+          <!-- 176 is between 160 and 200, fraction 16/40=0.4 along that segment -->
+          <!-- x: 125 + 0.4*40 = 141; y: 122 + 0.4*(77-122) = 122-18 = 104 -->
+          <line x1="141" y1="104" x2="141" y2="170" stroke="#5A8A6A" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="45" y1="104" x2="141" y2="104" stroke="#5A8A6A" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="141" y="179" text-anchor="middle" font-size="8" fill="#5A8A6A" font-weight="600">176</text>
+          <text x="38" y="107" text-anchor="end" font-size="8" fill="#5A8A6A" font-weight="600">≈130</text>
+          <circle cx="141" cy="104" r="3.5" fill="#5A8A6A"/>
+          <!-- shaded region above 176 -->
+          <rect x="141" y="10" width="144" height="160" fill="#5A8A6A" opacity="0.07"/>
+          <text x="210" y="100" text-anchor="middle" font-size="9" fill="#5A8A6A" font-weight="600">≈ 57%</text>
+          <text x="210" y="110" text-anchor="middle" font-size="8" fill="#5A8A6A">broke even</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 21: BETWEEN TWO VALUES -->
+<div class="slide" data-label="Cumulative Frequency">
+  <div class="slide-header">
+    <span class="slide-label">Values Between Two Numbers</span>
+    <span class="slide-num">21 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Days with between 112 and 232 pies sold</div>
+    <div class="rule-line"></div>
+    <div class="cols" style="align-items:center;">
+      <div>
+        <ul class="steps">
+          <li><div class="step-num">1</div><span>Read cumulative frequency at <strong>x = 112</strong>: ≈ <strong>20</strong></span></li>
+          <li><div class="step-num">2</div><span>Read cumulative frequency at <strong>x = 232</strong>: ≈ <strong>225</strong></span></li>
+          <li><div class="step-num">3</div><span>Subtract: 225 − 20 = <span class="em">≈ 205 days</span></span></li>
+        </ul>
+        <br>
+        <div class="example-box">
+          <div class="example-label">Key principle</div>
+          The difference between two cumulative frequency readings gives the <strong>count of values between those two points</strong>.
+        </div>
+      </div>
+      <div>
+        <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" class="chart">
+          <line x1="45" y1="10" x2="45" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="45" y1="170" x2="290" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="42" y1="117" x2="290" y2="117" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="64" x2="290" y2="64" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="10" x2="290" y2="10" stroke="#eee" stroke-width="1"/>
+          <text x="39" y="173" text-anchor="end" font-size="8" fill="#999">0</text>
+          <text x="39" y="120" text-anchor="end" font-size="8" fill="#999">100</text>
+          <text x="39" y="67" text-anchor="end" font-size="8" fill="#999">200</text>
+          <text x="39" y="14" text-anchor="end" font-size="8" fill="#999">300</text>
+          <polyline points="45,170 85,151 125,122 165,77 205,45 245,19 285,10"
+            fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" opacity="0.7"/>
+          <!-- x=112: between 80(45) and 120(85), fraction 32/40=0.8 → x_svg=45+0.8*40=77, y=170+0.8*(151-170)=170-15.2=154.8≈155 -->
+          <!-- x=232: between 200(165) and 240(205), fraction 32/40=0.8 → x_svg=165+0.8*40=197, y=77+0.8*(45-77)=77-25.6=51.4≈51 -->
+          <line x1="77" y1="155" x2="77" y2="170" stroke="#8A6B4A" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="45" y1="155" x2="77" y2="155" stroke="#8A6B4A" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="197" y1="51" x2="197" y2="170" stroke="#8A6B4A" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="45" y1="51" x2="197" y2="51" stroke="#8A6B4A" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="77" y="179" text-anchor="middle" font-size="8" fill="#8A6B4A" font-weight="600">112</text>
+          <text x="197" y="179" text-anchor="middle" font-size="8" fill="#8A6B4A" font-weight="600">232</text>
+          <text x="38" y="155" text-anchor="end" font-size="8" fill="#8A6B4A">≈20</text>
+          <text x="38" y="54" text-anchor="end" font-size="8" fill="#8A6B4A">≈225</text>
+          <rect x="77" y="51" width="120" height="104" fill="#8A6B4A" opacity="0.08"/>
+          <circle cx="77" cy="155" r="3" fill="#8A6B4A"/>
+          <circle cx="197" cy="51" r="3" fill="#8A6B4A"/>
+          <text x="137" y="108" text-anchor="middle" font-size="9" fill="#8A6B4A" font-weight="600">≈ 205 days</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 22: PERCENTILES -->
+<div class="slide" data-label="Percentiles">
+  <div class="slide-header">
+    <span class="slide-label">Percentiles</span>
+    <span class="slide-num">22 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">What is the 20th percentile?</div>
+    <div class="rule-line"></div>
+    <div class="cols" style="align-items:center;">
+      <div>
+        <p>The <span class="em">p<sup>th</sup> percentile</span> is the value below which <strong>p% of the data</strong> falls.</p>
+        <br>
+        <ul class="steps">
+          <li><div class="step-num">1</div><span>Calculate <strong>20% of 300</strong> = 0.20 × 300 = <strong>60</strong></span></li>
+          <li><div class="step-num">2</div><span>Find 60 on the cumulative frequency axis.</span></li>
+          <li><div class="step-num">3</div><span>Draw a horizontal line to the curve.</span></li>
+          <li><div class="step-num">4</div><span>Drop to x-axis → <span class="em">≈ 148 pies</span></span></li>
+        </ul>
+        <br>
+        <div class="example-box" style="font-size:12px;">
+          On 20% of days, fewer than <strong>148 pies</strong> were sold.
+        </div>
+      </div>
+      <div>
+        <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" class="chart">
+          <line x1="45" y1="10" x2="45" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="45" y1="170" x2="290" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="42" y1="117" x2="290" y2="117" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="64" x2="290" y2="64" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="10" x2="290" y2="10" stroke="#eee" stroke-width="1"/>
+          <text x="39" y="173" text-anchor="end" font-size="8" fill="#999">0</text>
+          <text x="39" y="120" text-anchor="end" font-size="8" fill="#999">100</text>
+          <text x="39" y="67" text-anchor="end" font-size="8" fill="#999">200</text>
+          <text x="39" y="14" text-anchor="end" font-size="8" fill="#999">300</text>
+          <polyline points="45,170 85,151 125,122 165,77 205,45 245,19 285,10"
+            fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" opacity="0.7"/>
+          <!-- cf=60 → y=170-(60/300)*160=170-32=138 -->
+          <!-- on curve between (85,151) and (125,122): cf 36→90, want 60, fraction=(60-36)/54=0.44 -->
+          <!-- x=85+0.44*40=102.7, y=151+0.44*(122-151)=151-12.8=138.2 -->
+          <line x1="45" y1="138" x2="103" y2="138" stroke="#A06B8A" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="103" y1="138" x2="103" y2="170" stroke="#A06B8A" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="38" y="141" text-anchor="end" font-size="8" fill="#A06B8A" font-weight="600">60</text>
+          <text x="103" y="179" text-anchor="middle" font-size="8" fill="#A06B8A" font-weight="600">≈148</text>
+          <circle cx="103" cy="138" r="3.5" fill="#A06B8A"/>
+          <text x="103" y="185" text-anchor="middle" font-size="7" fill="#A06B8A">P₂₀</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 23: QUARTILES -->
+<div class="slide" data-label="Quartiles & IQR">
+  <div class="slide-header">
+    <span class="slide-label">Quartiles</span>
+    <span class="slide-num">23 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Q₁, Q₃ and the interquartile range</div>
+    <div class="rule-line"></div>
+    <div class="cols">
+      <div>
+        <div class="card" style="margin-bottom:12px;">
+          <div class="card-title">Definitions</div>
+          <p><strong>Q₁</strong> (Lower Quartile) — 25th percentile → n/4 = <strong>75</strong><br>
+          <strong>Q₃</strong> (Upper Quartile) — 75th percentile → 3n/4 = <strong>225</strong><br>
+          <strong>IQR</strong> = Q₃ − Q₁</p>
+        </div>
+        <ul class="steps">
+          <li><div class="step-num">Q₁</div><span>Find 75 on y-axis → draw across → <span class="em">≈ 155 pies</span></span></li>
+          <li><div class="step-num">Q₃</div><span>Find 225 on y-axis → draw across → <span class="em">≈ 238 pies</span></span></li>
+          <li><div class="step-num">IQR</div><span>238 − 155 = <span class="em">≈ 83 pies</span></span></li>
+        </ul>
+      </div>
+      <div>
+        <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" class="chart">
+          <line x1="45" y1="10" x2="45" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="45" y1="170" x2="290" y2="170" stroke="#ddd" stroke-width="1"/>
+          <line x1="42" y1="117" x2="290" y2="117" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="64" x2="290" y2="64" stroke="#eee" stroke-width="1"/>
+          <line x1="42" y1="10" x2="290" y2="10" stroke="#eee" stroke-width="1"/>
+          <text x="39" y="173" text-anchor="end" font-size="8" fill="#999">0</text>
+          <text x="39" y="120" text-anchor="end" font-size="8" fill="#999">100</text>
+          <text x="39" y="67" text-anchor="end" font-size="8" fill="#999">200</text>
+          <text x="39" y="14" text-anchor="end" font-size="8" fill="#999">300</text>
+          <polyline points="45,170 85,151 125,122 165,77 205,45 245,19 285,10"
+            fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" opacity="0.7"/>
+          <!-- Q1: cf=75, between (85,151)&(125,122): frac=(75-36)/54=0.72 → x=85+0.72*40=113.9, y=151+0.72*(122-151)=151-20.9=130 -->
+          <!-- Q3: cf=225, between (205,45)&(245,19): frac=(225-234)... wait cf=234 at x=240 -->
+          <!-- actually (200,174)→(240,234): frac=(225-174)/60=0.85 → x_svg=165+0.85*40=199, y=77+0.85*(45-77)=77-27.2=49.8≈50 -->
+          <!-- Q1 lines -->
+          <line x1="45" y1="130" x2="114" y2="130" stroke="#4A8A6B" stroke-width="1.3" stroke-dasharray="4,3"/>
+          <line x1="114" y1="130" x2="114" y2="170" stroke="#4A8A6B" stroke-width="1.3" stroke-dasharray="4,3"/>
+          <text x="38" y="133" text-anchor="end" font-size="7.5" fill="#4A8A6B">75</text>
+          <text x="114" y="179" text-anchor="middle" font-size="7.5" fill="#4A8A6B">≈155</text>
+          <text x="114" y="186" text-anchor="middle" font-size="7" fill="#4A8A6B">Q₁</text>
+          <circle cx="114" cy="130" r="3" fill="#4A8A6B"/>
+          <!-- Q3 lines -->
+          <line x1="45" y1="50" x2="199" y2="50" stroke="#8A4A6B" stroke-width="1.3" stroke-dasharray="4,3"/>
+          <line x1="199" y1="50" x2="199" y2="170" stroke="#8A4A6B" stroke-width="1.3" stroke-dasharray="4,3"/>
+          <text x="38" y="53" text-anchor="end" font-size="7.5" fill="#8A4A6B">225</text>
+          <text x="199" y="179" text-anchor="middle" font-size="7.5" fill="#8A4A6B">≈238</text>
+          <text x="199" y="186" text-anchor="middle" font-size="7" fill="#8A4A6B">Q₃</text>
+          <circle cx="199" cy="50" r="3" fill="#8A4A6B"/>
+          <!-- IQR shaded span -->
+          <rect x="114" y="160" width="85" height="6" fill="var(--accent)" opacity="0.35" rx="2"/>
+          <text x="156" y="159" text-anchor="middle" font-size="7.5" fill="var(--accent)" font-weight="600">IQR ≈ 83</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 24: IQR EXPLAINED -->
+<div class="slide" data-label="Quartiles & IQR">
+  <div class="slide-header">
+    <span class="slide-label">Interquartile Range</span>
+    <span class="slide-num">24 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">Why does the IQR matter?</div>
+    <div class="rule-line"></div>
+    <div class="cols" style="align-items:center;">
+      <div>
+        <p>The <span class="em">interquartile range</span> measures the spread of the <strong>middle 50%</strong> of the data.</p>
+        <br>
+        <ul class="bullets">
+          <li>It is <strong>not affected by extreme values</strong> (outliers)</li>
+          <li>A small IQR means the data is clustered tightly</li>
+          <li>A large IQR means the data is more spread out</li>
+        </ul>
+        <br>
+        <div class="example-box">
+          <div class="example-label">In context</div>
+          IQR ≈ 83 pies means the middle half of Kenny's daily sales ranged across about <strong>83 pies</strong> — from ≈155 to ≈238. Sales are moderately spread.
+        </div>
+      </div>
+      <div>
+        <!-- Visual number line -->
+        <svg viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg">
+          <!-- number line -->
+          <line x1="20" y1="70" x2="260" y2="70" stroke="#ccc" stroke-width="1.5"/>
+          <!-- whiskers -->
+          <line x1="30" y1="60" x2="30" y2="80" stroke="#999" stroke-width="1.5"/>
+          <line x1="250" y1="60" x2="250" y2="80" stroke="#999" stroke-width="1.5"/>
+          <!-- box Q1 to Q3 -->
+          <!-- min≈80, max≈320, range=240. scale: (v-80)/240*220+30 -->
+          <!-- Q1=155→(155-80)/240*220+30=68.75+30=98.75≈99 -->
+          <!-- Q3=238→(238-80)/240*220+30=144.8+30=174.8≈175 -->
+          <!-- median=192→(192-80)/240*220+30=102.7+30=132.7≈133 -->
+          <rect x="99" y="52" width="76" height="36" fill="var(--accent-light)" stroke="var(--accent)" stroke-width="1.8" rx="3"/>
+          <!-- median line -->
+          <line x1="133" y1="52" x2="133" y2="88" stroke="var(--accent)" stroke-width="2.5"/>
+          <!-- whisker lines -->
+          <line x1="30" y1="70" x2="99" y2="70" stroke="#aaa" stroke-width="1.2"/>
+          <line x1="175" y1="70" x2="250" y2="70" stroke="#aaa" stroke-width="1.2"/>
+          <!-- Labels -->
+          <text x="30" y="48" text-anchor="middle" font-size="9" fill="#888">Min</text>
+          <text x="30" y="57" text-anchor="middle" font-size="8" fill="#888">≈80</text>
+          <text x="99" y="46" text-anchor="middle" font-size="9" fill="var(--accent)" font-weight="600">Q₁</text>
+          <text x="99" y="55" text-anchor="middle" font-size="8" fill="var(--accent)">≈155</text>
+          <text x="133" y="46" text-anchor="middle" font-size="9" fill="var(--accent)" font-weight="600">Med</text>
+          <text x="133" y="55" text-anchor="middle" font-size="8" fill="var(--accent)">≈192</text>
+          <text x="175" y="46" text-anchor="middle" font-size="9" fill="#8A4A6B" font-weight="600">Q₃</text>
+          <text x="175" y="55" text-anchor="middle" font-size="8" fill="#8A4A6B">≈238</text>
+          <text x="250" y="48" text-anchor="middle" font-size="9" fill="#888">Max</text>
+          <text x="250" y="57" text-anchor="middle" font-size="8" fill="#888">≈320</text>
+          <!-- IQR brace -->
+          <line x1="99" y1="97" x2="175" y2="97" stroke="var(--accent)" stroke-width="1.2"/>
+          <line x1="99" y1="93" x2="99" y2="97" stroke="var(--accent)" stroke-width="1.2"/>
+          <line x1="175" y1="93" x2="175" y2="97" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="137" y="108" text-anchor="middle" font-size="9" fill="var(--accent)">IQR ≈ 83</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 25: SUMMARY OVERVIEW -->
+<div class="slide" data-label="Summary">
+  <div class="slide-header">
+    <span class="slide-label">Topic Summary</span>
+    <span class="slide-num">25 / 26</span>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">What we have covered</div>
+    <div class="rule-line"></div>
+    <div class="recap-grid">
+      <div class="recap-item">
+        <div class="icon">📋</div>
+        <div class="r-title">Data Types</div>
+        <p>Qualitative vs quantitative; discrete vs continuous</p>
+      </div>
+      <div class="recap-item">
+        <div class="icon">🎯</div>
+        <div class="r-title">Sampling</div>
+        <p>Simple random, stratified, systematic, convenience</p>
+      </div>
+      <div class="recap-item">
+        <div class="icon">⚖️</div>
+        <div class="r-title">Stratified Calc</div>
+        <p>Proportional sampling from each sub-group</p>
+      </div>
+      <div class="recap-item">
+        <div class="icon">📊</div>
+        <div class="r-title">Frequency Tables</div>
+        <p>Discrete and grouped; modal class; histograms</p>
+      </div>
+      <div class="recap-item">
+        <div class="icon">📈</div>
+        <div class="r-title">Cumulative Frequency</div>
+        <p>Running totals → S-curve graph</p>
+      </div>
+      <div class="recap-item">
+        <div class="icon">📐</div>
+        <div class="r-title">Median, IQR, %iles</div>
+        <p>Read from graph: median, Q₁, Q₃, IQR, percentiles</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 26: FINAL -->
+<div class="slide" data-label="End">
+  <div class="slide-header">
+    <span class="slide-label">11 ADP – Descriptive Statistics</span>
+    <span class="slide-num">26 / 26</span>
+  </div>
+  <div class="slide-body" style="justify-content:center;align-items:center;text-align:center;">
+    <div class="rule-line" style="margin:0 auto 24px;"></div>
+    <div style="font-family:var(--heading);font-size:clamp(28px,4vw,48px);font-weight:500;color:var(--ink);line-height:1.2;margin-bottom:18px;">
+      Good luck with your studies.
+    </div>
+    <div style="font-family:var(--heading);font-style:italic;font-size:clamp(14px,1.8vw,20px);color:var(--ink-soft);margin-bottom:36px;">
+      Collect data · Organise it · Read it carefully · Draw conclusions.
+    </div>
+    <div style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap;">
+      <div style="background:var(--accent-light);border-radius:5px;padding:10px 20px;font-size:13px;color:var(--accent);">Data Types</div>
+      <div style="background:var(--accent-light);border-radius:5px;padding:10px 20px;font-size:13px;color:var(--accent);">Sampling</div>
+      <div style="background:var(--accent-light);border-radius:5px;padding:10px 20px;font-size:13px;color:var(--accent);">Frequency Tables</div>
+      <div style="background:var(--accent-light);border-radius:5px;padding:10px 20px;font-size:13px;color:var(--accent);">Histograms</div>
+      <div style="background:var(--accent-light);border-radius:5px;padding:10px 20px;font-size:13px;color:var(--accent);">Cumulative Frequency</div>
+      <div style="background:var(--accent-light);border-radius:5px;padding:10px 20px;font-size:13px;color:var(--accent);">IQR & Percentiles</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /slide-wrap -->
+</div><!-- /stage -->
+
+<!-- Navigation -->
+<div id="nav">
+  <button class="nav-btn" id="prevBtn" onclick="go(-1)" title="Previous (←)">&#8592;</button>
+  <span id="counter">1 / 26</span>
+  <button class="nav-btn" id="nextBtn" onclick="go(1)" title="Next (→)">&#8594;</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  function go(dir) {
+    slides[current].classList.remove('active');
+    current = (current + dir + total) % total;
+    slides[current].classList.add('active');
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(-1); }
+  });
+
+  // Init progress
+  document.getElementById('progress').style.width = (1 / total * 100) + '%';
+</script>
+</body>
+</html>
