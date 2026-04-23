@@ -396,6 +396,88 @@
   }
   .frac .num { display: block; border-bottom: 1.5px solid var(--ink); padding: 0 4px 2px; }
   .frac .den { display: block; padding: 2px 4px 0; }
+
+  /* ── Quiz / Interactive ── */
+  .quiz-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--rule);
+    border-radius: 6px;
+    background: white;
+    transition: border-color 0.25s;
+  }
+  .quiz-row.answered { background: #FAFAF8; }
+  .quiz-scenario {
+    font-size: clamp(11px, 1.2vw, 13.5px);
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .quiz-options {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    justify-content: flex-end;
+  }
+  .qbtn {
+    border: 1.5px solid var(--rule);
+    background: white;
+    border-radius: 4px;
+    padding: 5px 11px;
+    font-family: var(--body);
+    font-size: clamp(10px, 1.1vw, 12px);
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, color 0.18s;
+    white-space: nowrap;
+  }
+  .qbtn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .qbtn.correct { background: #D6EDDF; border-color: #4A9B6A; color: #2D7A4F; pointer-events: none; }
+  .qbtn.wrong   { background: #FADED9; border-color: #C0614A; color: #A0402E; pointer-events: none; }
+  .qbtn.reveal  { background: #D6EDDF; border-color: #4A9B6A; color: #2D7A4F; pointer-events: none; }
+  .qbtn:disabled { cursor: default; opacity: 0.55; }
+  .quiz-feedback {
+    font-size: clamp(10px, 1.1vw, 12px);
+    margin-top: 5px;
+    color: #555;
+    font-style: italic;
+    min-height: 0;
+    grid-column: 1 / -1;
+    display: none;
+  }
+  .quiz-row.answered .quiz-feedback { display: block; }
+  .quiz-score {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-top: 6px;
+    text-align: right;
+  }
+  .score-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    border-radius: 20px;
+    padding: 3px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 6px;
+  }
+  .score-badge.perfect { background: #4A9B6A; }
+  .reset-btn {
+    background: none;
+    border: 1.5px solid var(--rule);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-family: var(--body);
+    font-size: 11px;
+    color: #888;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
 </style>
 </head>
 <body>
@@ -458,41 +540,95 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════ SLIDE 3: IDENTIFYING DATA TYPES -->
-<div class="slide" data-label="Data Types">
+<!-- ═══════════════════════════════════════════════════ SLIDE 3: IDENTIFYING DATA TYPES (INTERACTIVE) -->
+<div class="slide" data-label="Data Types" id="slide-datatypes">
   <div class="slide-header">
-    <span class="slide-label">Identifying Data Types</span>
+    <span class="slide-label">Identifying Data Types — Practice</span>
     <span class="slide-num">3 / 26</span>
   </div>
-  <div class="slide-body">
-    <div class="slide-title">Practice: classify each example</div>
+  <div class="slide-body" style="padding-top:20px;padding-bottom:16px;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;">
+      <div class="slide-title" style="margin-bottom:0;">Classify each example</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="quiz-score" id="dt-score" style="margin-top:0;"></span>
+        <button class="reset-btn" onclick="resetQuiz('dt')">Reset</button>
+      </div>
+    </div>
     <div class="rule-line"></div>
-    <div class="dtype-row">
-      <div class="dh">Data</div><div class="dh" style="text-align:center;">Type</div><div class="dh" style="text-align:center;">Sub-type</div>
+    <div style="display:flex;flex-direction:column;gap:7px;" id="dt-questions">
 
-      <div class="dc">Colours of automobiles on a used car lot</div>
-      <div class="dc" style="text-align:center;"><span class="answer">Qualitative</span></div>
-      <div class="dc" style="text-align:center;">—</div>
+      <div class="quiz-row" id="dt-q0">
+        <div>
+          <div class="quiz-scenario">Colours of automobiles on a used car lot</div>
+          <div class="quiz-feedback" id="dt-fb0">✓ Colour is a label, not a number — it cannot be measured or ordered meaningfully.</div>
+        </div>
+        <div class="quiz-options">
+          <button class="qbtn" onclick="answerDT(0,'Qualitative','Qualitative')">Qualitative</button>
+          <button class="qbtn" onclick="answerDT(0,'Quantitative – Discrete','Qualitative')">Quant. Discrete</button>
+          <button class="qbtn" onclick="answerDT(0,'Quantitative – Continuous','Qualitative')">Quant. Continuous</button>
+        </div>
+      </div>
 
-      <div class="dc">Numbers on the shirts of a girls' soccer team</div>
-      <div class="dc" style="text-align:center;"><span class="answer">Qualitative</span></div>
-      <div class="dc" style="text-align:center;font-size:11px;color:#999;">labels, not amounts</div>
+      <div class="quiz-row" id="dt-q1">
+        <div>
+          <div class="quiz-scenario">Numbers on the shirts of a girls' soccer team</div>
+          <div class="quiz-feedback" id="dt-fb1">✓ Shirt numbers are <em>labels</em> — you can't add or average them meaningfully. Qualitative.</div>
+        </div>
+        <div class="quiz-options">
+          <button class="qbtn" onclick="answerDT(1,'Qualitative','Qualitative')">Qualitative</button>
+          <button class="qbtn" onclick="answerDT(1,'Quantitative – Discrete','Qualitative')">Quant. Discrete</button>
+          <button class="qbtn" onclick="answerDT(1,'Quantitative – Continuous','Qualitative')">Quant. Continuous</button>
+        </div>
+      </div>
 
-      <div class="dc">Number of seats in a movie theater</div>
-      <div class="dc" style="text-align:center;"><span class="answer">Quantitative</span></div>
-      <div class="dc" style="text-align:center;"><span class="answer">Discrete</span></div>
+      <div class="quiz-row" id="dt-q2">
+        <div>
+          <div class="quiz-scenario">Number of seats in a movie theater</div>
+          <div class="quiz-feedback" id="dt-fb2">✓ Counted in whole numbers — you can't have half a seat. Quantitative & Discrete.</div>
+        </div>
+        <div class="quiz-options">
+          <button class="qbtn" onclick="answerDT(2,'Qualitative','Quantitative – Discrete')">Qualitative</button>
+          <button class="qbtn" onclick="answerDT(2,'Quantitative – Discrete','Quantitative – Discrete')">Quant. Discrete</button>
+          <button class="qbtn" onclick="answerDT(2,'Quantitative – Continuous','Quantitative – Discrete')">Quant. Continuous</button>
+        </div>
+      </div>
 
-      <div class="dc">Majors of students in a university</div>
-      <div class="dc" style="text-align:center;"><span class="answer">Qualitative</span></div>
-      <div class="dc" style="text-align:center;">—</div>
+      <div class="quiz-row" id="dt-q3">
+        <div>
+          <div class="quiz-scenario">Majors of students in a university</div>
+          <div class="quiz-feedback" id="dt-fb3">✓ A major is a category name (e.g. "Biology") — not a number. Qualitative.</div>
+        </div>
+        <div class="quiz-options">
+          <button class="qbtn" onclick="answerDT(3,'Qualitative','Qualitative')">Qualitative</button>
+          <button class="qbtn" onclick="answerDT(3,'Quantitative – Discrete','Qualitative')">Quant. Discrete</button>
+          <button class="qbtn" onclick="answerDT(3,'Quantitative – Continuous','Qualitative')">Quant. Continuous</button>
+        </div>
+      </div>
 
-      <div class="dc">Ages of 350 hospital employees</div>
-      <div class="dc" style="text-align:center;"><span class="answer">Quantitative</span></div>
-      <div class="dc" style="text-align:center;"><span class="answer">Continuous</span></div>
+      <div class="quiz-row" id="dt-q4">
+        <div>
+          <div class="quiz-scenario">Ages of a sample of 350 hospital employees</div>
+          <div class="quiz-feedback" id="dt-fb4">✓ Age can take any value (e.g. 34.7 years) — measured, not counted. Quantitative & Continuous.</div>
+        </div>
+        <div class="quiz-options">
+          <button class="qbtn" onclick="answerDT(4,'Qualitative','Quantitative – Continuous')">Qualitative</button>
+          <button class="qbtn" onclick="answerDT(4,'Quantitative – Discrete','Quantitative – Continuous')">Quant. Discrete</button>
+          <button class="qbtn" onclick="answerDT(4,'Quantitative – Continuous','Quantitative – Continuous')">Quant. Continuous</button>
+        </div>
+      </div>
 
-      <div class="dc">Amount of liquid in science lab bottles</div>
-      <div class="dc" style="text-align:center;"><span class="answer">Quantitative</span></div>
-      <div class="dc" style="text-align:center;"><span class="answer">Continuous</span></div>
+      <div class="quiz-row" id="dt-q5">
+        <div>
+          <div class="quiz-scenario">Amount of liquid in different bottles in a science lab</div>
+          <div class="quiz-feedback" id="dt-fb5">✓ Volume is measured and can be any value (e.g. 45.3 mL). Quantitative & Continuous.</div>
+        </div>
+        <div class="quiz-options">
+          <button class="qbtn" onclick="answerDT(5,'Qualitative','Quantitative – Continuous')">Qualitative</button>
+          <button class="qbtn" onclick="answerDT(5,'Quantitative – Discrete','Quantitative – Continuous')">Quant. Discrete</button>
+          <button class="qbtn" onclick="answerDT(5,'Quantitative – Continuous','Quantitative – Continuous')">Quant. Continuous</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -660,32 +796,75 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════ SLIDE 9: IDENTIFYING TECHNIQUE -->
-<div class="slide" data-label="Sampling">
+<!-- ═══════════════════════════════════════════════════ SLIDE 9: IDENTIFYING TECHNIQUE (INTERACTIVE) -->
+<div class="slide" data-label="Sampling" id="slide-sampling">
   <div class="slide-header">
-    <span class="slide-label">Identifying Sampling Technique</span>
+    <span class="slide-label">Identifying Sampling Technique — Practice</span>
     <span class="slide-num">9 / 26</span>
   </div>
-  <div class="slide-body">
-    <div class="slide-title">Which method is being used?</div>
+  <div class="slide-body" style="padding-top:20px;padding-bottom:16px;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;">
+      <div class="slide-title" style="margin-bottom:0;">Which method is being used?</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="quiz-score" id="sm-score" style="margin-top:0;"></span>
+        <button class="reset-btn" onclick="resetQuiz('sm')">Reset</button>
+      </div>
+    </div>
     <div class="rule-line"></div>
-    <div style="display:flex;flex-direction:column;gap:11px;">
-      <div style="display:grid;grid-template-columns:3fr 2fr;gap:0;border:1.5px solid var(--rule);border-radius:5px;overflow:hidden;">
-        <div style="padding:10px 16px;font-size:13px;color:var(--ink-soft);">Every 5th person boarding a plane is searched.</div>
-        <div style="padding:10px 16px;font-size:12.5px;color:var(--accent);font-weight:500;background:var(--accent-light);display:flex;align-items:center;">Systematic</div>
+    <div style="display:flex;flex-direction:column;gap:9px;" id="sm-questions">
+
+      <div class="quiz-row" id="sm-q0">
+        <div>
+          <div class="quiz-scenario">Every fifth person boarding a plane is searched thoroughly.</div>
+          <div class="quiz-feedback" id="sm-fb0">✓ A fixed interval (every 5th person) is applied to an ordered sequence — that's <strong>Systematic</strong> sampling.</div>
+        </div>
+        <div class="quiz-options">
+          <button class="qbtn" onclick="answerSM(0,'Simple Random','Systematic')">Simple Random</button>
+          <button class="qbtn" onclick="answerSM(0,'Stratified','Systematic')">Stratified</button>
+          <button class="qbtn" onclick="answerSM(0,'Systematic','Systematic')">Systematic</button>
+          <button class="qbtn" onclick="answerSM(0,'Convenience','Systematic')">Convenience</button>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:3fr 2fr;gap:0;border:1.5px solid var(--rule);border-radius:5px;overflow:hidden;">
-        <div style="padding:10px 16px;font-size:13px;color:var(--ink-soft);">A researcher randomly selects 50 male and 50 female teachers.</div>
-        <div style="padding:10px 16px;font-size:12.5px;color:var(--accent);font-weight:500;background:var(--accent-light);display:flex;align-items:center;">Stratified</div>
+
+      <div class="quiz-row" id="sm-q1">
+        <div>
+          <div class="quiz-scenario">A researcher randomly selects and interviews fifty male and fifty female teachers.</div>
+          <div class="quiz-feedback" id="sm-fb1">✓ The population is split into two groups (male/female) and randomly sampled from each — that's <strong>Stratified</strong> sampling.</div>
+        </div>
+        <div class="quiz-options">
+          <button class="qbtn" onclick="answerSM(1,'Simple Random','Stratified')">Simple Random</button>
+          <button class="qbtn" onclick="answerSM(1,'Stratified','Stratified')">Stratified</button>
+          <button class="qbtn" onclick="answerSM(1,'Systematic','Stratified')">Systematic</button>
+          <button class="qbtn" onclick="answerSM(1,'Convenience','Stratified')">Convenience</button>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:3fr 2fr;gap:0;border:1.5px solid var(--rule);border-radius:5px;overflow:hidden;">
-        <div style="padding:10px 16px;font-size:13px;color:var(--ink-soft);">A university uses 12,500 responses from 42,000 surveys sent to alumni.</div>
-        <div style="padding:10px 16px;font-size:12.5px;color:var(--accent);font-weight:500;background:var(--accent-light);display:flex;align-items:center;">Simple Random<span style="font-size:10px;font-weight:400;color:#888;margin-left:6px;">(volunteers)</span></div>
+
+      <div class="quiz-row" id="sm-q2">
+        <div>
+          <div class="quiz-scenario">Based on 12,500 responses from 42,000 surveys sent to alumni, a university estimated the annual salary.</div>
+          <div class="quiz-feedback" id="sm-fb2">✓ Surveys were sent to all alumni and anyone could respond — each alumnus had an equal chance of being included. <strong>Simple Random</strong> (self-selected responses).</div>
+        </div>
+        <div class="quiz-options">
+          <button class="qbtn" onclick="answerSM(2,'Simple Random','Simple Random')">Simple Random</button>
+          <button class="qbtn" onclick="answerSM(2,'Stratified','Simple Random')">Stratified</button>
+          <button class="qbtn" onclick="answerSM(2,'Systematic','Simple Random')">Systematic</button>
+          <button class="qbtn" onclick="answerSM(2,'Convenience','Simple Random')">Convenience</button>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:3fr 2fr;gap:0;border:1.5px solid var(--rule);border-radius:5px;overflow:hidden;">
-        <div style="padding:10px 16px;font-size:13px;color:var(--ink-soft);">A student interviews everyone in his/her biology class.</div>
-        <div style="padding:10px 16px;font-size:12.5px;color:var(--accent);font-weight:500;background:var(--accent-light);display:flex;align-items:center;">Convenience</div>
+
+      <div class="quiz-row" id="sm-q3">
+        <div>
+          <div class="quiz-scenario">A community college student interviews everyone in his/her biology class to determine the percentage of students who own a car.</div>
+          <div class="quiz-feedback" id="sm-fb3">✓ The class was chosen simply because it was <em>available</em> — no randomisation. That's <strong>Convenience</strong> sampling.</div>
+        </div>
+        <div class="quiz-options">
+          <button class="qbtn" onclick="answerSM(3,'Simple Random','Convenience')">Simple Random</button>
+          <button class="qbtn" onclick="answerSM(3,'Stratified','Convenience')">Stratified</button>
+          <button class="qbtn" onclick="answerSM(3,'Systematic','Convenience')">Systematic</button>
+          <button class="qbtn" onclick="answerSM(3,'Convenience','Convenience')">Convenience</button>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -1546,6 +1725,85 @@
 
   // Init progress
   document.getElementById('progress').style.width = (1 / total * 100) + '%';
+
+  /* ── Quiz state ── */
+  const dtState = { answers: Array(6).fill(null), total: 6 };
+  const smState = { answers: Array(4).fill(null), total: 4 };
+
+  function updateScore(prefix, state) {
+    const correct = state.answers.filter(a => a === true).length;
+    const answered = state.answers.filter(a => a !== null).length;
+    const el = document.getElementById(prefix + '-score');
+    if (answered === 0) { el.innerHTML = ''; return; }
+    const isPerfect = correct === state.total && answered === state.total;
+    el.innerHTML = `Score: <span class="score-badge ${isPerfect ? 'perfect' : ''}">${correct} / ${answered}</span>`;
+  }
+
+  function answerDT(idx, chosen, correct) {
+    if (dtState.answers[idx] !== null) return; // already answered
+    const row = document.getElementById('dt-q' + idx);
+    const btns = row.querySelectorAll('.qbtn');
+    const isCorrect = chosen === correct;
+    dtState.answers[idx] = isCorrect;
+
+    btns.forEach(btn => {
+      btn.disabled = true;
+      const label = btn.textContent.trim();
+      // Map abbreviated button text back to full answer
+      const fullLabel = label === 'Quant. Discrete' ? 'Quantitative – Discrete'
+                       : label === 'Quant. Continuous' ? 'Quantitative – Continuous'
+                       : label;
+      if (fullLabel === correct) btn.classList.add(isCorrect ? 'correct' : 'reveal');
+      else if (fullLabel === chosen && !isCorrect) btn.classList.add('wrong');
+      else btn.classList.add('disabled-btn');
+    });
+
+    row.classList.add('answered');
+    updateScore('dt', dtState);
+  }
+
+  function answerSM(idx, chosen, correct) {
+    if (smState.answers[idx] !== null) return;
+    const row = document.getElementById('sm-q' + idx);
+    const btns = row.querySelectorAll('.qbtn');
+    const isCorrect = chosen === correct;
+    smState.answers[idx] = isCorrect;
+
+    btns.forEach(btn => {
+      btn.disabled = true;
+      if (btn.textContent.trim() === correct) btn.classList.add(isCorrect && btn.textContent.trim() === chosen ? 'correct' : 'reveal');
+      else if (btn.textContent.trim() === chosen && !isCorrect) btn.classList.add('wrong');
+    });
+
+    row.classList.add('answered');
+    updateScore('sm', smState);
+  }
+
+  function resetQuiz(prefix) {
+    if (prefix === 'dt') {
+      dtState.answers = Array(6).fill(null);
+      for (let i = 0; i < 6; i++) {
+        const row = document.getElementById('dt-q' + i);
+        row.classList.remove('answered');
+        row.querySelectorAll('.qbtn').forEach(b => {
+          b.disabled = false;
+          b.className = 'qbtn';
+        });
+      }
+      updateScore('dt', dtState);
+    } else {
+      smState.answers = Array(4).fill(null);
+      for (let i = 0; i < 4; i++) {
+        const row = document.getElementById('sm-q' + i);
+        row.classList.remove('answered');
+        row.querySelectorAll('.qbtn').forEach(b => {
+          b.disabled = false;
+          b.className = 'qbtn';
+        });
+      }
+      updateScore('sm', smState);
+    }
+  }
 </script>
 </body>
 </html>
